@@ -1,0 +1,48 @@
+{
+  "name": "elysia-fsr",
+  "version": "0.1.0",
+  "description": "bun-first elysia file system router with type generation",
+  "author": {
+    "name": "deadlinecode",
+    "url": "https://github.com/deadlinecode"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/deadlinecode/elysia-fsr"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "bun run scripts/build.ts",
+    "test": "bun test && bunx tsc -p tsconfig.types.json --noEmit",
+    "typecheck": "bunx tsc -p tsconfig.json --noEmit",
+    "pack": "bun run test && bun run build && bun pm pack",
+    "prepublishOnly": "bun run pack"
+  },
+  "devDependencies": {
+    "@elysiajs/eden": "^1.4.9",
+    "@types/bun": "latest",
+    "elysia": "^1.4.28",
+    "eslint": "^10.4.0",
+    "prettier": "^3.8.3",
+    "typescript": "^6.0.3"
+  },
+  "peerDependencies": {
+    "elysia": "^1.4.28",
+    "prettier": "^3.8.3"
+  }
+}
