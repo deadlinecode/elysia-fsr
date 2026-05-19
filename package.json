@@ -33,7 +33,7 @@
     "lint:check": "eslint .",
     "format": "bunx prettier --write .",
     "format:check": "bunx prettier --check .",
-    "test:all": "bun run format:check && bun run lint:check && bun run typecheck",
+    "test:all": "bun run format:check && bun run lint:check && bun run test",
     "package:prepare": "bun run test:all && bun run build && bun pm pack",
     "prepublishOnly": "bun run package:prepare"
   },
