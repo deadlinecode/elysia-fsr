@@ -69,14 +69,14 @@ const printScanResults = (logger: Logger, results: ScanResult[]) => {
 
 export const fsr = async (options?: Partial<RouterOptions>) => {
   const finalOptions: RouterOptions = {
-    dir: path.resolve(import.meta.dirname, "./routes"),
+    dir: "./routes",
     filter: "**/*.{ts,tsx,js,jsx,mjs,cjs}",
     logLevel: LogLevel.Default,
     types: true,
     ...options,
   };
 
-  finalOptions.dir = path.resolve(finalOptions.dir);
+  finalOptions.dir = path.resolve(path.dirname(Bun.main), finalOptions.dir);
 
   const logger = createLogger(finalOptions.logLevel);
   logger.verbose("options", finalOptions);
