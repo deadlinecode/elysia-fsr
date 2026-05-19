@@ -1,11 +1,23 @@
-import { beforeAll, describe, expect, it, test } from "bun:test";
+import { beforeAll, describe, expect, it } from "bun:test";
 import Elysia from "elysia";
+
 import { fsr } from "../../src/router";
 
 describe("FSR runtime response tests", () => {
   let app: Elysia;
-  const req = (path: string) =>
-    app.handle(new Request(`http://localhost${path}`)).then((r) => r.json());
+  const req = (path: string, options?: { headers?: Record<string, string> }) =>
+    app
+      .handle(
+        new Request(`http://localhost${path}`, { headers: options?.headers })
+      )
+      .then((r) => r.text())
+      .then((txt) => {
+        try {
+          return JSON.parse(txt);
+        } catch {
+          return txt;
+        }
+      });
   beforeAll(async () => {
     app = new Elysia().use(await fsr({ dir: "test/fixtures/routes" }));
   });
@@ -50,6 +62,37 @@ describe("FSR runtime response tests", () => {
     expect(rsp).toMatchObject({
       route: "/users/:id",
       id: "1",
+    });
+  });
+
+  it('/scoped/non-scoped-test should return route "/scoped/non-scoped-test"', async () => {
+    const rsp = await req("/scoped/non-scoped-test");
+    expect(rsp).toMatchObject({
+      route: "/scoped/non-scoped-test",
+    });
+  });
+  it('/scoped/scoped-test without token header should return msg "no token found"', async () => {
+    const rsp = await req("/scoped/scoped-test");
+    expect(rsp).toMatchObject({
+      msg: "no token found",
+    });
+  });
+  it('/scoped/scoped-test with token header should return route "/(scoped)/scoped/scoped-test"', async () => {
+    const rsp = await req("/scoped/scoped-test", { headers: { token: "123" } });
+    expect(rsp).toMatchObject({
+      route: "/(scoped)/scoped/scoped-test",
+    });
+  });
+  it('/test without token header should return msg "no token found"', async () => {
+    const rsp = await req("/test");
+    expect(rsp).toMatchObject({
+      msg: "no token found",
+    });
+  });
+  it('/test with token header should return route "/(scoped)/index/test"', async () => {
+    const rsp = await req("/test", { headers: { token: "123" } });
+    expect(rsp).toMatchObject({
+      route: "/(scoped)/index/test",
     });
   });
 });

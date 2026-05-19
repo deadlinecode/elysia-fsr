@@ -1,4 +1,5 @@
 import { treaty } from "@elysiajs/eden";
+
 import type { App } from "../fixtures/routes";
 
 type Equal<A, B> =
@@ -8,13 +9,14 @@ type Equal<A, B> =
       : false
     : false;
 
-type Expect<T extends true> = T;
-
 const client = treaty<App>("http://localhost");
 
 const test = <R extends string, A, B>(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   route: R,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   expect: A,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   fx: () => Promise<{
     data: B;
   }>

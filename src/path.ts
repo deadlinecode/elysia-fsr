@@ -26,7 +26,7 @@ export const normalizeRouteSegment = (segment: string) => {
 };
 
 export const isIndexFile = (filePath: string) =>
-  path.matchesGlob(filePath, "**/index.ts{x,}");
+  path.matchesGlob(filePath, "**/index.*");
 
 export const filePathToRouteSegments = (filePath: string) => {
   const strippedPath = stripExtension(filePath);

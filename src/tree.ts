@@ -1,4 +1,5 @@
 import Elysia from "elysia";
+
 import {
   RouteNode,
   RouteTree,
@@ -24,9 +25,11 @@ export const getNodeKind = (segment: string): SegmentKind =>
     ? "param"
     : segment.startsWith("*")
       ? "wildcard"
-      : segment
-        ? "static"
-        : "root";
+      : segment.startsWith("(") && segment.endsWith(")")
+        ? "ghost"
+        : segment
+          ? "static"
+          : "root";
 
 export const getOrCreateChild = (parent: RouteNode, segment: string) => {
   let child = parent.children.get(segment);
@@ -59,19 +62,25 @@ export const buildRouteTree = (results: ScanResult[]): RouteTree => {
   return tree;
 };
 
-export const mergeApps = (apps: Elysia[]) => {
-  const root = new Elysia();
+export const mergeApps = (apps: Elysia[], root = new Elysia()) => {
   apps.forEach((app) => root.use(app));
   return root;
 };
 
 export const composeNode = (node: RouteNode) => {
-  const app = node.apps.length === 1 ? node.apps[0]! : mergeApps(node.apps);
+  const app =
+    node.kind === "ghost"
+      ? mergeApps(node.apps.slice(1), node.apps.at(0))
+      : mergeApps(node.apps);
+
   node.children
     .values()
     .forEach((child) =>
-      app.use(new Elysia({ prefix: child.segment }).use(composeNode(child)))
+      child.kind === "ghost"
+        ? app.use(composeNode(child))
+        : app.use(new Elysia({ prefix: child.segment }).use(composeNode(child)))
     );
+
   return app;
 };
 

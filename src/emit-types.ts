@@ -1,19 +1,27 @@
-import {
-  RouteNode,
-  RouterOptions,
-  RouteTree,
-  ScanResult,
-  ScanResultStatus,
-} from "./types";
 import fs from "fs/promises";
 import path from "path";
 import prettier from "prettier";
+
+import {
+  RouteNode,
+  RouteTree,
+  RouterOptions,
+  ScanResult,
+  ScanResultStatus,
+} from "./types";
 
 const renderNodes = (
   children: RouteNode[],
   modMap: Map<string, string>
 ): string => {
-  const res = children
+  const ghostNodes: RouteNode[] = [];
+  const normalNodes: RouteNode[] = [];
+
+  children.forEach((node) =>
+    (node.kind === "ghost" ? ghostNodes : normalNodes).push(node)
+  );
+
+  const nodeTypes = normalNodes
     .map((node) => {
       const res = node.files
         .map((file) => `(typeof ${modMap.get(file)!})["~Routes"]`)
@@ -26,9 +34,26 @@ const renderNodes = (
       if (node.kind === "root") return res;
       return `\n"${node.segment}": ${res}`;
     })
-    .join();
-  if (children.length === 1 && children[0]?.kind === "root") return res;
-  return `{${res}}`;
+    .join(";");
+
+  const res =
+    children.length === 1 && children[0]?.kind === "root"
+      ? nodeTypes
+      : `{${nodeTypes}}`;
+
+  if (!ghostNodes.length) return res;
+  return `${ghostNodes
+    .map((node) =>
+      node.files
+        .map((file) => `(typeof ${modMap.get(file)!})["~Routes"]`)
+        .concat(
+          node.children.size
+            ? renderNodes(Array.from(node.children.values()), modMap)
+            : []
+        )
+        .join(" & ")
+    )
+    .join(" & ")} & ${res}`;
 };
 
 export const buildTypeSource = async (
@@ -84,7 +109,7 @@ export const emitRouteTypes = async (
 ) => {
   if (!options.types) return;
   let importAlias;
-  let fileDir = "";
+  let fileDir;
   if (typeof options.types === "object") {
     fileDir = options.types.dir;
     if (options.types.importAlias) {
@@ -98,5 +123,7 @@ export const emitRouteTypes = async (
     if (!importAlias.startsWith("..")) importAlias = "./" + importAlias;
   }
   const types = await buildTypeSource(tree, results, importAlias);
-  await writeTypeFile(path.join(fileDir, "routes.d.ts"), types);
+  const outputFilePath = path.join(fileDir, "routes.d.ts");
+  await writeTypeFile(outputFilePath, types);
+  return outputFilePath;
 };

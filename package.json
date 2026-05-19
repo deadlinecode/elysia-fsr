@@ -30,16 +30,24 @@
     "build": "bun run scripts/build.ts",
     "test": "bun test && bunx tsc -p tsconfig.types.json --noEmit",
     "typecheck": "bunx tsc -p tsconfig.json --noEmit",
-    "pack": "bun run test && bun run build && bun pm pack",
-    "prepublishOnly": "bun run pack"
+    "lint:check": "eslint .",
+    "format": "bunx prettier --write .",
+    "format:check": "bunx prettier --check .",
+    "test:all": "bun run format:check && bun run lint:check && bun run typecheck",
+    "package:prepare": "bun run test:all && bun run build && bun pm pack",
+    "prepublishOnly": "bun run package:prepare"
   },
   "devDependencies": {
     "@elysiajs/eden": "^1.4.9",
+    "@eslint/js": "^10.0.1",
+    "@trivago/prettier-plugin-sort-imports": "^6.0.2",
     "@types/bun": "latest",
     "elysia": "^1.4.28",
     "eslint": "^10.4.0",
+    "globals": "^17.6.0",
     "prettier": "^3.8.3",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.4"
   },
   "peerDependencies": {
     "elysia": "^1.4.28",

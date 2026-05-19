@@ -24,7 +24,7 @@ export enum ScanResultStatus {
   Error,
 }
 
-export type LoadRouteModuleResult<T = {}> =
+export type LoadRouteModuleResult<T> =
   | ({
       status: ScanResultStatus.Loaded;
       app: Elysia;
@@ -38,7 +38,7 @@ export type ScanResult = {
   filePath: string;
 } & LoadRouteModuleResult<{ routeSegments: string[] }>;
 
-export type SegmentKind = "root" | "static" | "param" | "wildcard";
+export type SegmentKind = "root" | "static" | "param" | "wildcard" | "ghost";
 
 export type RouteNode = {
   kind: SegmentKind;
