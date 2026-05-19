@@ -19,7 +19,7 @@ describe("FSR runtime response tests", () => {
         }
       });
   beforeAll(async () => {
-    app = new Elysia().use(await fsr({ dir: "test/fixtures/routes" }));
+    app = new Elysia().use(await fsr({ dir: "../fixtures/routes" }));
   });
 
   it('/ should return route "/"', async () => {

@@ -100,7 +100,7 @@ const response = await client.get();
 
 ## General rules / plugin options
 
-- The default routes dir is "./routes"
+- The default routes dir is "./routes" (relative to the main module/file e.g. `dirname(Bun.main)`)
 - If the routes directory does not exist the plugin will create it
 - Default filter is `**/*.{ts,tsx,js,jsx,mjs,cjs}` (so all files with the endings ts,tsx,js,jsx,mjs,cjs)
 - By default the generation of types is enabled and the file is emitted in the same folder as the routes folder lives (e.g. by default `src/routes.d.ts`)
